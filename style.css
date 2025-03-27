@@ -1,0 +1,250 @@
+/* 粉色主题变量 */
+:root {
+    --primary-pink: #ff9ff3;
+    --secondary-pink: #feca57;
+    --light-pink: #ffd6e0;
+    --dark-pink: #ff6b81;
+    --text-color: #5f27cd;
+    --shadow: 0 4px 15px rgba(255, 105, 140, 0.1);
+}
+
+/* 登录界面样式 */
+.auth-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 215, 233, 0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.auth-box {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.auth-box h2 {
+    color: var(--dark-pink);
+    margin-bottom: 1.5rem;
+}
+
+/* 基础样式调整 */
+body {
+    background-color: #fff5f7;
+    color: #333;
+}
+
+h1 {
+    color: var(--dark-pink);
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+/* 上传区域样式 */
+.upload-section {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: var(--dark-pink);
+}
+
+input[type="text"],
+input[type="password"],
+select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid var(--light-pink);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    background: white;
+}
+
+.image-preview {
+    width: 200px;
+    height: 200px;
+    border: 2px dashed var(--primary-pink);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin: 1rem auto;
+    background-color: #fff9fb;
+}
+
+.image-preview img {
+    max-width: 100%;
+    max-height: 100%;
+    display: none;
+}
+
+.upload-btn {
+    display: block;
+    width: 100%;
+    padding: 0.75rem;
+    background: linear-gradient(45deg, var(--primary-pink), var(--secondary-pink));
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-bottom: 1rem;
+}
+
+.upload-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 105, 140, 0.3);
+}
+
+.upload-btn.secondary {
+    background: var(--light-pink);
+    color: var(--text-color);
+}
+
+/* 衣物展示区域 */
+.wardrobe-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.25rem;
+    margin-top: 2rem;
+}
+
+.clothing-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+}
+
+.clothing-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(255, 105, 140, 0.2);
+}
+
+.clothing-image {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-bottom: 2px solid var(--light-pink);
+    cursor: pointer;
+}
+
+.clothing-info {
+    padding: 1rem;
+}
+
+.clothing-name {
+    font-weight: bold;
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
+    color: var(--dark-pink);
+}
+
+.clothing-category {
+    display: inline-block;
+    background: var(--light-pink);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    color: var(--text-color);
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.delete-btn {
+    display: block;
+    width: 100%;
+    padding: 0.5rem;
+    margin-top: 0.75rem;
+    background: #ffebee;
+    color: #c62828;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.delete-btn:hover {
+    background: #ffcdd2;
+}
+
+/* 筛选控件 */
+.filter-controls {
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.filter-controls select {
+    flex: 1;
+    min-width: 150px;
+}
+
+/* 分页控件 */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 2rem;
+    gap: 1rem;
+}
+
+#page-info {
+    font-weight: bold;
+    color: var(--dark-pink);
+}
+
+/* 图片模态框 */
+#image-modal {
+    border: none;
+    border-radius: 15px;
+    padding: 0;
+    max-width: 90%;
+    max-height: 90%;
+}
+
+#image-modal::backdrop {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+#modal-image {
+    max-width: 100%;
+    max-height: 80vh;
+    display: block;
+    margin: 0 auto;
+}
+
+/* 响应式设计 */
+@media (max-width: 600px) {
+    .wardrobe-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .filter-controls {
+        flex-direction: column;
+    }
+}
