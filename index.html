@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>米雪大王的衣柜</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 登录界面 -->
+    <div id="auth-container" class="auth-container">
+        <div class="auth-box">
+            <h2>米雪大王的衣柜</h2>
+            <div class="form-group">
+                <input type="text" id="login-email" placeholder="邮箱" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="login-password" placeholder="密码" required>
+            </div>
+            <button id="login-btn" class="upload-btn">登录</button>
+        </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <div id="app-content" style="display: none;">
+        <header class="container">
+            <h1>米雪大王的衣柜</h1>
+        </header>
+
+        <main class="container">
+            <div class="upload-section">
+                <div class="form-group">
+                    <label for="clothing-name">衣物名称</label>
+                    <input type="text" id="clothing-name" placeholder="例如: 粉色连衣裙" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="main-category">主分类</label>
+                    <select id="main-category" required>
+                        <option value="">选择主分类</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="season-category">季节分类</label>
+                    <select id="season-category" required>
+                        <option value="">选择季节</option>
+                        <option value="春">春</option>
+                        <option value="夏">夏</option>
+                        <option value="秋">秋</option>
+                        <option value="冬">冬</option>
+                        <option value="通用">通用</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="clothing-image">上传图片</label>
+                    <div class="image-preview" id="image-preview">
+                        <span>预览图</span>
+                        <img id="preview-img" alt="衣物预览">
+                    </div>
+                    <input type="file" id="clothing-image" accept="image/*" style="display: none;">
+                    <button class="upload-btn" id="upload-trigger">选择图片</button>
+                </div>
+                
+                <button class="upload-btn" id="add-clothing">添加到衣柜</button>
+            </div>
+            
+            <div class="filter-controls">
+                <select id="main-category-filter">
+                    <option value="all">所有主分类</option>
+                </select>
+                <select id="season-filter">
+                    <option value="all">所有季节</option>
+                    <option value="春">春</option>
+                    <option value="夏">夏</option>
+                    <option value="秋">秋</option>
+                    <option value="冬">冬</option>
+                    <option value="通用">通用</option>
+                </select>
+                <button id="clear-filter" class="upload-btn secondary">清除筛选</button>
+            </div>
+            
+            <div class="wardrobe-container" id="wardrobe-container">
+                <p style="grid-column: 1 / -1; text-align: center;">衣柜空空如也，快添加你的第一件衣物吧！</p>
+            </div>
+
+            <div class="pagination">
+                <button id="prev-page" class="upload-btn secondary">上一页</button>
+                <span id="page-info">第1页</span>
+                <button id="next-page" class="upload-btn secondary">下一页</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- 图片查看模态框 -->
+    <dialog id="image-modal">
+        <img id="modal-image" src="" alt="放大查看">
+        <button class="upload-btn" onclick="document.getElementById('image-modal').close()">关闭</button>
+    </dialog>
+
+    <!-- 先加载Supabase库，再加载自定义JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
+</body>
+</html>
