@@ -1,5 +1,5 @@
 // 米雪大王的衣柜 - 完整JavaScript实现
-// 版本：1.0.0 (2023-11-20)
+// 版本：1.1.0 (修复图片查看问题)
 // 功能：衣物管理、私有图片存储、分页筛选
 
 // ==== 全局配置 ====
@@ -119,6 +119,12 @@ function handleImageUpload(e) {
   const file = e.target.files[0];
   if (!file) return;
 
+  // 验证文件类型
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+    showError('仅支持JPEG、PNG或WebP格式的图片');
+    return;
+  }
+
   selectedImage = file;
 
   const reader = new FileReader();
@@ -173,31 +179,40 @@ async function compressImage(file) {
 }
 
 /**
- * 获取签名URL
+ * 获取签名URL - 修复版本
  */
 async function getSignedUrl(path) {
-  // 检查缓存
-  const cached = imageUrlCache.get(path);
-  if (cached && cached.expiry > Date.now()) {
-    return cached.url;
+  // 验证路径
+  if (!path || typeof path !== 'string') {
+    console.error('无效的路径:', path);
+    return '';
   }
 
   try {
+    // 直接从Supabase获取最新URL，确保总是获取最新的
     const { data, error } = await supabaseClient.storage
       .from('clothing-images')
       .createSignedUrl(path, CONFIG.URL_EXPIRE_TIME);
 
-    if (error) throw error;
+    if (error) {
+      console.error('URL签名错误详情:', {
+        error,
+        path,
+        bucket: 'clothing-images'
+      });
+      throw error;
+    }
 
-    // 更新缓存
-    imageUrlCache.set(path, {
-      url: data.signedUrl,
-      expiry: Date.now() + (CONFIG.URL_EXPIRE_TIME * 900) // 提前10%过期
-    });
+    if (!data?.signedUrl) {
+      throw new Error('未能获取有效的签名URL');
+    }
 
     return data.signedUrl;
   } catch (err) {
-    console.error('获取签名URL失败:', err);
+    console.error('获取签名URL失败:', {
+      error: err,
+      path
+    });
     return '';
   }
 }
@@ -241,7 +256,7 @@ async function loadMainCategories() {
 }
 
 /**
- * 加载衣柜内容
+ * 加载衣柜内容 - 修复图片显示版本
  */
 async function loadWardrobe() {
   try {
@@ -288,17 +303,26 @@ async function loadWardrobe() {
 
     // 渲染衣物卡片
     for (const item of data) {
-      const path = item.image_path.split('/').pop();
+      // 修复路径处理逻辑
+      const path = item.image_path.startsWith('http') ? 
+                  new URL(item.image_path).pathname.substring(1) : 
+                  item.image_path;
+      
       const signedUrl = await getSignedUrl(path);
-
+      
       const card = document.createElement('div');
       card.className = 'clothing-card';
       card.innerHTML = `
-        <img src="${signedUrl}" 
-             alt="${item.name}" 
-             class="clothing-image"
-             data-path="${path}"
-             onclick="showOriginalImage('${item.original_image_path}')">
+        <div class="image-container">
+          <img src="${signedUrl || 'placeholder-error.png'}" 
+               alt="${item.name}" 
+               class="clothing-image"
+               onerror="this.src='placeholder-error.png'"
+               data-path="${path}">
+          <div class="image-overlay" onclick="showOriginalImage('${item.original_image_path}')">
+            <span>查看大图</span>
+          </div>
+        </div>
         <div class="clothing-info">
           <div class="clothing-name">${item.name}</div>
           <span class="clothing-category">${item.main_category}</span>
@@ -321,6 +345,33 @@ async function loadWardrobe() {
     showError('加载失败: ' + err.message);
   } finally {
     hideStatus();
+  }
+}
+
+/**
+ * 显示原图 - 修复版本
+ */
+async function showOriginalImage(imagePath) {
+  try {
+    // 修复路径处理
+    const path = imagePath.startsWith('http') ? 
+                new URL(imagePath).pathname.substring(1) : 
+                imagePath;
+    
+    const signedUrl = await getSignedUrl(path);
+    
+    if (!signedUrl) {
+      throw new Error('无法生成有效的图片URL');
+    }
+    
+    dom.modalImage.src = signedUrl;
+    dom.modalImage.onerror = () => {
+      dom.modalImage.src = 'placeholder-error.png';
+    };
+    dom.imageModal.showModal();
+  } catch (err) {
+    showError('无法加载图片: ' + err.message);
+    console.error('图片加载错误详情:', err);
   }
 }
 
@@ -349,14 +400,20 @@ async function addClothing() {
     const timestamp = Date.now();
     const fileExt = selectedImage.name.split('.').pop();
 
-    // 文件路径
+    // 文件路径 - 修复路径格式
     const originalPath = `${userId}/original_${timestamp}.${fileExt}`;
     const compressedPath = `${userId}/compressed_${timestamp}.${fileExt}`;
 
     // 上传文件
     const uploadTasks = [
-      supabaseClient.storage.from('clothing-images').upload(originalPath, selectedImage),
-      supabaseClient.storage.from('clothing-images').upload(compressedPath, compressedFile)
+      supabaseClient.storage.from('clothing-images').upload(originalPath, selectedImage, {
+        cacheControl: '3600',
+        upsert: false
+      }),
+      supabaseClient.storage.from('clothing-images').upload(compressedPath, compressedFile, {
+        cacheControl: '3600',
+        upsert: false
+      })
     ];
 
     const results = await Promise.all(uploadTasks);
@@ -439,20 +496,6 @@ async function deleteClothing(id) {
 }
 
 // ==== 辅助功能 ====
-
-/**
- * 显示原图
- */
-async function showOriginalImage(imagePath) {
-  try {
-    const path = imagePath.split('/').pop();
-    const signedUrl = await getSignedUrl(path);
-    dom.modalImage.src = signedUrl;
-    dom.imageModal.showModal();
-  } catch (err) {
-    showError('无法加载图片: ' + err.message);
-  }
-}
 
 /**
  * 筛选衣柜
